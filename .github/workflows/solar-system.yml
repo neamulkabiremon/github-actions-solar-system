@@ -46,3 +46,29 @@
          name: Code-Coverage-Result
          path: coverage
          retention-days: 5 
+
+    docker:
+        runs-on: ubuntu-latest
+        needs:
+          - unit-testing
+          - code-coverage
+        steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+
+          - name: Set lowercase repository owner
+            run: echo "REPO_OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+          - name: Login to GitHub Container Registry
+            uses: docker/login-action@v3
+            with:
+              registry: ghcr.io
+              username: '${{ github.repository_owner }}'
+              password: '${{ secrets.TOKEN_GITHUB }}'
+
+          - name: Build and Push Docker Image
+            uses: docker/build-push-action@v4
+            with:
+              context: .
+              push: true
+              tags: 'ghcr.io/${{ env.REPO_OWNER_LC }}/solar-system:${{ github.sha }}'
