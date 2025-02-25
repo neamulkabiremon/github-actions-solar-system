@@ -206,8 +206,14 @@ jobs:
         - name: Apply Kubernetes Manifests
           run: |
              kubectl apply -f kubernetes/development/
-             kubectl get ingress solar-system -n development -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-             kubectl -n development get ingress solar-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+        - name: Get ALB Ingress Hostname
+          id: get-ingress
+          run: |
+             echo "Fetching ALB DNS..."
+             ALB_DNS=$(kubectl -n development get ingress solar-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+             echo "Ingress ALB DNS: $ALB_DNS"
+             echo "ALB_HOSTNAME=$ALB_DNS" >> $GITHUB_ENV
 
 
 
