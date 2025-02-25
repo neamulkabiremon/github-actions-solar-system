@@ -216,6 +216,25 @@ jobs:
              echo "Ingress ALB DNS: [ $ALB_DNS ]" | tee alb_dns.txt
              echo "ALB_HOSTNAME=$ALB_DNS" >> $GITHUB_ENV
 
+    integration-testing:
+      name: Dev Integration Testing
+      needs: dev-deploy
+      runs-on: ubuntu-latest 
+      steps:
+        - name: Wait for ALB to be Ready
+          run: sleep 30  # Allow time for ALB to become active
+       
+        - name: Test ALB Ingress Hostname
+          run: |
+             echo "Using ALB Hostname: ${{ env.ALB_HOSTNAME }}"
+             nslookup ${{ env.ALB_HOSTNAME }}
+       
+        - name: Test URL Output using CURL and JQ
+          run: |
+             echo "Fetching live status..."
+             curl -s -k https://solarsystem.neamulkabiremon.com/live | jq -r .status | grep -i live
+       
+
 
 
        
