@@ -162,6 +162,11 @@ jobs:
           with:
             version: 'v1.30.0'
         
+        - uses: azure/k8s-set-context@v4
+          with:
+            method: kubeconfig
+            kubeconfig: ${{ secrets.KUBECONFIG }}
+        
         - name: Fatch Kubernetes Cluster Details
           run: |
             kubectl version --short -o yaml
