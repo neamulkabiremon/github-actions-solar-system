@@ -103,7 +103,7 @@ jobs:
           docker images
           docker run --name solar-system-app -d \
               -p 3000:3000 \
-              -e MONGO_URI=$MONGO_USERNAME \
+              -e MONGO_URI=$MONGO_URI \
               -e MONGO_USERNAME=$MONGO_USERNAME \
               -e MONGO_PASSWORD=$MONGO_PASSWORD \
               ${{ secrets.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
@@ -116,7 +116,7 @@ jobs:
           echo "Testing image URL using Wget"
           wget -q -O - 127.0.0.1:3000/live | grep live 
 
-      - name: Container Registry Push
+      - name: Push Image to DockerHub & GHCR
         uses: docker/build-push-action@v5
         with:
           context: .
