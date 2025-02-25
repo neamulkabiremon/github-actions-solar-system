@@ -188,15 +188,22 @@ jobs:
           with:
             tokenPrefix: '_{_'
             tokenSuffix: '_}_'
-            files: '["kubernetes/development/*.yaml"]'
+            files: 'kubernetes/development/*.yaml'
           env:
-            NAMESPACE: ${{ vars.NAMESPACE }}
-            REPLICAS: ${{ vars.REPLICAS }}
-            IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+            NAMESPACE: "${{ secrets.NAMESPACE }}"
+            REPLICAS: "${{ secrets.REPLICAS }}"
+            IMAGE: "${{ secrets.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}"
 
-        - name: Check files
+        - name: Check Final Kubernetes Manifests
           run: |
-            cat kubernetes/development/*.yaml
+             cat kubernetes/development/*.yaml
+
+        - name: Apply Kubernetes Manifests
+          run: |
+             kubectl apply -f kubernetes/development/
+             kubectl get ingress solar-system -n development -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+
+
 
        
  
