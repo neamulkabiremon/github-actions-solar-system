@@ -223,17 +223,9 @@ jobs:
       runs-on: ubuntu-latest 
       steps:
         - name: Wait for ALB to be Ready
-          run: sleep 5  # Allow time for ALB to become active
-       
-        - name: Test ALB Ingress Hostname
-          run: |
-             echo "Testing ALB Hostname: ${{ needs.dev-deploy.outputs.alb_dns }}"
-             nslookup ${{ needs.dev-deploy.outputs.alb_dns }}
-       
+          run: sleep 5  # Allow time for ALB to become active      
         - name: Test URL Output using CURL and JQ
           run: |
-             echo "Fetching live status..."
-             curl -s -k https://${{ needs.dev-deploy.outputs.alb_dns }}/live | jq -r .status | grep -i live
              echo "Fetching live status..."
              curl -s -k https://solarsystem.neamulkabiremon.com/live | jq -r .status | grep -i live
        
