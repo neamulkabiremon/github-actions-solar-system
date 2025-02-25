@@ -198,12 +198,12 @@ jobs:
           run: |
              cat kubernetes/development/*.yaml
              kubectl -n development create secret generic mongo-db-creds \
-                --from-literal=MONGO_URI='mongodb+srv://supercluster.d83jj.mongodb.net/superData' \
-                --from-literal=MONGO_USERNAME='superuser' \
-                --from-literal=MONGO_PASSWORD='SuperPassword' \
+                --from-literal=MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData \
+                --from-literal=MONGO_USERNAME=${{ secrets.MONGO_USERNAME }} \
+                --from-literal=MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
                 --save-config --dry-run=client -o yaml | kubectl apply -f -
 
-        - name: Apply Kubernetes Manifests
+        - name: Deploy to Development Environment
           run: |
              kubectl apply -f kubernetes/development/
 
@@ -212,7 +212,8 @@ jobs:
           run: |
              echo "Fetching ALB DNS..."
              ALB_DNS=$(kubectl -n development get ingress solar-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-             echo "Ingress ALB DNS: $ALB_DNS"
+             echo "::notice title=ALB DNS:: $ALB_DNS"
+             echo "Ingress ALB DNS: [ $ALB_DNS ]" | tee alb_dns.txt
              echo "ALB_HOSTNAME=$ALB_DNS" >> $GITHUB_ENV
 
 
