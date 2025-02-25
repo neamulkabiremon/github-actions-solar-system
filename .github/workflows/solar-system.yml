@@ -167,7 +167,7 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2  # Update to your EKS region
+            aws-region: ${{ vars.AWS_REGION }}
           
         - name: Update Kubeconfig for EKS
           run: aws eks update-kubeconfig --region us-east-2 --name staging-demo
@@ -210,11 +210,12 @@ jobs:
         - name: Get ALB Ingress Hostname
           id: get-ingress
           run: |
-             echo "Fetching ALB DNS..."
              ALB_DNS=$(kubectl -n development get ingress solar-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-             echo "::notice title=ALB DNS:: $ALB_DNS"
-             echo "Ingress ALB DNS: [ $ALB_DNS ]" | tee alb_dns.txt
-             echo "ALB_HOSTNAME=$ALB_DNS" >> $GITHUB_ENV
+             echo "ALB DNS: $ALB_DNS"
+             echo "ALB_DNS=$ALB_DNS" >> $GITHUB_ENV
+             echo "::set-output name=ALB_DNS::$ALB_DNS"  # Store ALB DNS as output
+      outputs:
+        alb_dns: ${{ steps.get-ingress.outputs.ALB_DNS }}  # Store ALB DNS as output
 
     integration-testing:
       name: Dev Integration Testing
@@ -222,15 +223,17 @@ jobs:
       runs-on: ubuntu-latest 
       steps:
         - name: Wait for ALB to be Ready
-          run: sleep 30  # Allow time for ALB to become active
+          run: sleep 5  # Allow time for ALB to become active
        
         - name: Test ALB Ingress Hostname
           run: |
-             echo "Using ALB Hostname: ${{ env.ALB_HOSTNAME }}"
-             nslookup ${{ env.ALB_HOSTNAME }}
+             echo "Testing ALB Hostname: ${{ needs.dev-deploy.outputs.alb_dns }}"
+             nslookup ${{ needs.dev-deploy.outputs.alb_dns }}
        
         - name: Test URL Output using CURL and JQ
           run: |
+             echo "Fetching live status..."
+             curl -s -k https://${{ needs.dev-deploy.outputs.alb_dns }}/live | jq -r .status | grep -i live
              echo "Fetching live status..."
              curl -s -k https://solarsystem.neamulkabiremon.com/live | jq -r .status | grep -i live
        
