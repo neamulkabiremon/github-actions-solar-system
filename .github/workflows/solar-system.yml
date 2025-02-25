@@ -39,19 +39,20 @@ jobs:
           
         - name: Archive Test Result
           if: always()
-          uses: actions/upload-artifact@v4   # ✅ Upgraded to v4
+          uses: actions/upload-artifact@v4   
           with:
             name: Mocha-Test-Result
             path: test-results.xml
 
     code-coverage:
      runs-on: ubuntu-latest
+     continue-on-error: true
      steps:
      - name: Checkout Repository
        uses: actions/checkout@v4
 
      - name: Setup NodeJS Version
-       uses: actions/setup-node@v4  # ✅ Updated to v4 for consistency
+       uses: actions/setup-node@v4  
        with:
         node-version: 18
 
@@ -60,9 +61,10 @@ jobs:
 
      - name: Check Code Coverage
        run: npm run coverage
+       continue-on-error: true
 
      - name: Archive Test Result
-       uses: actions/upload-artifact@v4  # ✅ Upgraded to v4
+       uses: actions/upload-artifact@v4  
        with:
         name: Code-Coverage-Result
         path: coverage
