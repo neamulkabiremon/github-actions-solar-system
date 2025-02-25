@@ -194,14 +194,20 @@ jobs:
             REPLICAS: "${{ secrets.REPLICAS }}"
             IMAGE: "${{ secrets.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}"
 
-        - name: Check Final Kubernetes Manifests
+        - name: Check Final Kubernetes Manifests & Create Secret
           run: |
              cat kubernetes/development/*.yaml
+             kubectl -n development create secret generic mongo-db-creds \
+                --from-literal=MONGO_URI='mongodb+srv://supercluster.d83jj.mongodb.net/superData' \
+                --from-literal=MONGO_USERNAME='superuser' \
+                --from-literal=MONGO_PASSWORD='SuperPassword' \
+                --save-config --dry-run=client -o yaml | kubectl apply -f -
 
         - name: Apply Kubernetes Manifests
           run: |
              kubectl apply -f kubernetes/development/
              kubectl get ingress solar-system -n development -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+             kubectl -n development get ingress solar-system -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 
 
 
