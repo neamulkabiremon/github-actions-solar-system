@@ -1,24 +1,28 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    kubernetes.io/tls-acme: "true"
   name: solar-system
   namespace: _{_NAMESPACE_}_
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:377027906194:certificate/0d2c44f6-3455-4322-b695-d08d841091b9
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
-    rules:
-    - host: solar-system-_{_NAMESPACE_}_._{_INGRESS_IP_}_.nip.io
+  ingressClassName: alb  # Ensures the AWS ALB Ingress Controller handles it
+  rules:
+    - host: solarsystem.neamulkabiremon.com  # Your subdomain
       http:
         paths:
-        - backend:
-            service:
-              name: solar-system
-              port:
-                number: 3000
-          path: /
-          pathType: Prefix
-    tls:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: solar-system
+                port:
+                  number: 3000
+  tls:
     - hosts:
-      - solar-system-_{_NAMESPACE_}_._{_INGRESS_IP_}_.nip.io
-      secretName: ingress-local-tls
+        - solarsystem.neamulkabiremon.com
+      secretName: solar-system-tls 
