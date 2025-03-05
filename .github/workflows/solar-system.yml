@@ -223,7 +223,7 @@ jobs:
       runs-on: ubuntu-latest 
       steps:
         - name: Wait for ALB to be Ready
-          run: sleep 5  # Allow time for ALB to become active      
+          run: sleep 5  # Allow time for Application loadbalancer to become active      
         - name: Test URL Output using CURL and JQ
           run: |
              echo "Fetching live status..."
