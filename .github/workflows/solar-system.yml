@@ -170,7 +170,7 @@ jobs:
             aws-region: ${{ vars.AWS_REGION }}
           
         - name: Update Kubeconfig for EKS
-          run: aws eks update-kubeconfig --region us-east-2 --name staging-demo
+          run: aws eks update-kubeconfig --region us-east-2 --name staging-prod
       
         # - uses: azure/k8s-set-context@v4
         #   with:
